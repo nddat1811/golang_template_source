@@ -1,0 +1,1 @@
+# golang_template_source
