@@ -1,0 +1,172 @@
+definitions:
+  controller.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  controller.RefreshToken:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  controller.UserRegisterInput:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: User Login
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: User Login
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get Refresh Token
+      parameters:
+      - description: body
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/controller.RefreshToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get Refresh Token
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: User Register
+      parameters:
+      - description: body
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/controller.UserRegisterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: User Register
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all users from the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+      summary: Get all users
+      tags:
+      - users
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+      security:
+      - Authorization: []
+      summary: Get user by ID
+      tags:
+      - users
+  /users/export:
+    get:
+      description: Export all users to an Excel file and download
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Export all users to Excel
+      tags:
+      - users
+securityDefinitions:
+  Authorization:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

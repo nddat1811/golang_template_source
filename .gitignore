@@ -1,0 +1,10 @@
+autom4te.cache/
+build/
+configure
+/install-sh
+/Makefile.in
+config.log
+config.status
+vendor
+.env
+.vscode
