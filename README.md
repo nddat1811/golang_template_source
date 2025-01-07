@@ -99,3 +99,8 @@ go get github.com/gin-contrib/cors
 go install github.com/rubenv/sql-migrate/...@latest
 go get -u github.com/golang-jwt/jwt/v5
 go get github.com/xuri/excelize/v2
+go get github.com/stretchr/testify/mock
+go install github.com/mitranim/gow@latest
+go get github.com/DATA-DOG/go-sqlmock
+go install go.uber.org/mock/mockgen@latest
+go install github.com/golang/mock/mockgen@v1.6.0

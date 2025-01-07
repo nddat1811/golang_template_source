@@ -74,3 +74,27 @@ func CloseConnectDB(conn *gorm.DB) {
 // 		panic(fmt.Sprintf("Failed to run migrations: %v", err))
 // 	}
 // }
+
+// k xài vì
+//https://gorm.io/docs/migration.html
+/*
+1 Thiếu kiểm soát version migration
+
+- GORM không hỗ trợ versioning để theo dõi lịch sử migration, rollback hay kiểm tra trạng thái schema hiện tại.
+- Nếu cần rollback hoặc khôi phục schema, phải tự viết code xử lý.
+- Khó quản lý schema trong môi trường nhiều server
+
+2 Không có công cụ built-in để quản lý migration giữa các môi trường (development, staging, production).
+- Dễ dẫn đến xung đột schema nếu nhiều developer cùng làm việc.
+- Tính năng migration bị hạn chế
+
+3 Không hỗ trợ các thay đổi phức tạp như:
+- Thêm khóa ngoại (foreign key).
+- Di chuyển dữ liệu (data migration).
+- Đổi tên bảng hoặc cột.
+- Những trường hợp này buộc phải viết SQL thủ công.
+
+4 Không hỗ trợ rollback
+
+- Nếu có lỗi khi migrate, GORM không thể rollback về trạng thái trước đó
+*/

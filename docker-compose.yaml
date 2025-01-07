@@ -22,13 +22,13 @@ services:
     depends_on:
       - db
 
-  golang:
-    image: golang:1.23
-    ports:
-      - 4000:4000
-    volumes:
-      - .:/go/src/mvc_golang
-    working_dir: /go/src/mvc_golang
-    command: bash -c "export GO111MODULE=on && go mod tidy && go mod vendor && go install github.com/swaggo/swag/cmd/swag@latest && go install github.com/mitranim/gow@latest && swag init && gow run ."
-    depends_on:
-      - db
+  # golang:
+  #   image: golang:1.23
+  #   ports:
+  #     - 4000:4000
+  #   volumes:
+  #     - .:/go/src/mvc_golang
+  #   working_dir: /go/src/mvc_golang
+  #   command: bash -c "export GO111MODULE=on && go mod tidy && go mod vendor && go install github.com/swaggo/swag/cmd/swag@latest && go install github.com/mitranim/gow@latest && swag init && gow run ."
+  #   depends_on:
+  #     - db

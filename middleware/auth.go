@@ -28,7 +28,6 @@ func NewAuthMiddleware(uc usecase.AuthUseCase) *AuthMiddleware{
 
 func (m *AuthMiddleware) TokenAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// auth := service.NewAuthService()
 
 		authorizationHeader := ctx.GetHeader(constant.AuthorHeader)
 

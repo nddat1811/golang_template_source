@@ -2,32 +2,35 @@ package domain
 
 import "time"
 
-type User struct {
+type SysUser struct {
 	ID        int       `gorm:"column:id;primary_key"`
-	Name      string    `gorm:"column:name"`
+	Name      string    `gorm:"column:full_name"`
 	Email     string    `gorm:"column:email"`
 	Phone     string    `gorm:"column:phone"`
-	Password  string    `gorm:"column:password"`
+	Password  string    `gorm:"column:hash_password"`
 	CreatedAt time.Time `gorm:"column:created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at"`
 }
 
-type Token struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+
+func (sysUser *SysUser) TableName() string {
+	return "SYS_USER"
+}
+
+type SysUserRole struct {
+	ID        int       `gorm:"primaryKey;autoIncrement"`
+	UserID    int       `gorm:"column:user_id"`
+	RoleID    int       `gorm:"column:role_id"`
+	CreatedAt time.Time `gorm:"column:created_at"`
+	CreatedBy int       `gorm:"column:created_by"`
+}
+
+func (sysUserRole *SysUserRole) TableName() string {
+	return "SYS_USER_ROLE"
 }
 
 
-type SysLog struct {
-	ID             int `gorm:"primaryKey;autoIncrement"`
-	ActionDatetime time.Time
-	PathName       string
-	Method         string
-	IP             string
-	StatusResponse int
-	Response       string
-	Description    string
-	RequestBody    string
-	RequestQuery   string
-	Duration       float64
+type Token struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }

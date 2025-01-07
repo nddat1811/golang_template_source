@@ -28,8 +28,9 @@ func SetupRouter(conn *gorm.DB) *gin.Engine {
 	router.Use(middleware.LogMiddleware())
 
 	userRepo := repository.NewUserRepository(conn)
+	functionRepo := repository.NewSysFunctionRepository(conn)
 
-	authUseCase := usecase.NewAuthUseCase(userRepo)
+	authUseCase := usecase.NewAuthUseCase(userRepo, functionRepo)
 
 	authController := controller.NewAuthController(authUseCase)
 

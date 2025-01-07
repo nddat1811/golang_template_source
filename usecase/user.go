@@ -9,10 +9,10 @@ import (
 )
 
 type UserUseCase interface {
-	FindByEmail(email string) (*domain.User, error)
-	Create(user *domain.User) error
-	GetAllUsers() ([]*domain.User, error)
-	GetUserByID(id int) (*domain.User, error)
+	FindByEmail(email string) (*domain.SysUser, error)
+	Create(user *domain.SysUser) error
+	GetAllUsers() ([]*domain.SysUser, error)
+	GetUserByID(id int) (*domain.SysUser, error)
 	ExportUsersToExcel() (*bytes.Buffer, error)
 }
 
@@ -24,11 +24,11 @@ func NewUserUseCase(repo repository.UserRepository) UserUseCase {
 	return &userUseCase{userRepo: repo}
 }
 
-func (u *userUseCase) GetAllUsers() ([]*domain.User, error) {
+func (u *userUseCase) GetAllUsers() ([]*domain.SysUser, error) {
 	return u.userRepo.GetAll()
 }
 
-func (u *userUseCase) GetUserByID(id int) (*domain.User, error) {
+func (u *userUseCase) GetUserByID(id int) (*domain.SysUser, error) {
 	user, err := u.userRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -36,12 +36,16 @@ func (u *userUseCase) GetUserByID(id int) (*domain.User, error) {
 	return user, nil
 }
 
-func (u *userUseCase) FindByEmail(email string) (*domain.User, error) {
+func (u *userUseCase) FindByEmail(email string) (*domain.SysUser, error) {
 	return u.userRepo.FindByEmail(email)
 }
 
-func (u *userUseCase) Create(user *domain.User) error {
-	return u.userRepo.Create(user)
+func (u *userUseCase) Create(user *domain.SysUser) error {
+	_, err := u.userRepo.Create(user)
+	if err!= nil {
+        return err
+    }
+	return nil
 }
 
 func (u *userUseCase) ExportUsersToExcel() (*bytes.Buffer, error) {

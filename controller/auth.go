@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"golang_template_source/domain"
 	"golang_template_source/usecase"
 	"golang_template_source/utils"
@@ -39,8 +40,9 @@ func (c *AuthController) Login(ctx *gin.Context) {
 	}
 
 	token, err := c.authUseCase.Login(request.Email, request.Password)
+	fmt.Println("s:", err)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, utils.NewResponse("Bad request", nil))
+		ctx.JSON(http.StatusUnauthorized, utils.NewResponse("Bad request333", nil))
 		return
 	}
 
@@ -68,7 +70,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	err := c.authUseCase.Register(&domain.User{
+	err := c.authUseCase.Register(&domain.SysUser{
 		Email:    user.Email,
 		Password: user.Password,
 	})

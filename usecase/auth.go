@@ -14,20 +14,22 @@ import (
 
 type AuthUseCase interface {
 	Login(email, password string) (domain.Token, error)
-	Register(user *domain.User) error
+	Register(user *domain.SysUser) error
 	ValidateToken(token string) (*jwt.Token, error)
 	RefreshToken(refreshTokenString string) (domain.Token, error)
 }
 
 type authUseCase struct {
 	userRepo repository.UserRepository
+	functionRepo repository.SysFunctionRepository
 }
 
 var jwtKey = os.Getenv("API_KEY")
 
-func NewAuthUseCase(userRepo repository.UserRepository) AuthUseCase {
+func NewAuthUseCase(userRepo repository.UserRepository, functionRepo repository.SysFunctionRepository) AuthUseCase {
 	return &authUseCase{
 		userRepo: userRepo,
+		functionRepo: functionRepo,
 	}
 }
 
@@ -69,19 +71,24 @@ func (a *authUseCase) Login(email, password string) (domain.Token, error) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return domain.Token{}, errors.New("invalid credentials")
+		return domain.Token{}, errors.New("invalid credentials222")
 	}
 
 	return a.issueTokens(strconv.Itoa(user.ID))
 }
 
-func (a *authUseCase) Register(user *domain.User) error {
+func (a *authUseCase) Register(user *domain.SysUser) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 	user.Password = string(hashedPassword)
-	return a.userRepo.Create(user)
+	// return a.userRepo.Create(user)
+	_, errCreate := a.userRepo.Create(user)
+	if errCreate!= nil {
+        return errCreate
+    }
+	return nil
 }
 
 func (a *authUseCase) ValidateToken(tokenString string) (*jwt.Token, error) {
