@@ -1,0 +1,16 @@
+# Config chung
+root = "."                # Thư mục gốc
+tmp_dir = "tmp"           # Thư mục tạm thời
+build_delay = 1000        # Thời gian chờ reload (ms)
+
+# Command để build và chạy ứng dụng
+[build]
+  cmd = "go build -o ./tmp/main.exe ./main.go" # Thêm .exe vào tên file đầu ra
+  bin = "tmp/main.exe"                        # Chạy file .exe thay vì file không có phần mở rộng
+  exclude_dir = ["vendor"]                 # Loại trừ thư mục vendor
+
+# Theo dõi thay đổi
+[watcher]
+  includes = ["\\.go$", "\\.tpl$", "\\.html$", "\\.yaml$", "\\.yml$", "\\.json$"] # Theo dõi các file mở rộng này
+  exclude_dir = ["vendor", "tmp", "logs"]   # Loại trừ các thư mục này
+  delay = 500                              # Độ trễ kiểm tra thay đổi (ms)

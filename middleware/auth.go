@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"fmt"
 	"golang_template_source/config/constant"
+	"golang_template_source/repository"
 	"golang_template_source/usecase"
 	"golang_template_source/utils"
 	"net/http"
@@ -9,6 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
+	"strconv"
 )
 
 // const (
@@ -18,13 +22,18 @@ import (
 // )
 
 type AuthMiddleware struct {
-	AuthUseCase usecase.AuthUseCase
+	AuthUseCase  usecase.AuthUseCase
+	db           *gorm.DB
+	functionRepo repository.SysFunctionRepository
 }
 
-func NewAuthMiddleware(uc usecase.AuthUseCase) *AuthMiddleware{
-	return &AuthMiddleware{AuthUseCase: uc}
+func NewAuthMiddleware(uc usecase.AuthUseCase, db *gorm.DB) *AuthMiddleware {
+	return &AuthMiddleware{
+		db:           db,
+		functionRepo: repository.NewSysFunctionRepository(db),
+		AuthUseCase:  uc,
+	}
 }
-
 
 func (m *AuthMiddleware) TokenAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -52,14 +61,65 @@ func (m *AuthMiddleware) TokenAuthMiddleware() gin.HandlerFunc {
 				utils.NewResponse("token không hợp lệ", nil))
 			return
 		}
-
+		fmt.Println("token ", token)
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			ctx.JSON(http.StatusUnauthorized, utils.NewResponse("Bad request", nil))
+			ctx.JSON(http.StatusUnauthorized, utils.NewResponse("token không hợp lệ", nil))
 			ctx.Abort()
 			return
 		}
 		ctx.Set("userID", claims["userID"])
+
 		ctx.Next()
+	}
+}
+
+
+func (m *AuthMiddleware) Middleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Method == http.MethodOptions {
+			c.Next()
+			return
+		}
+
+		path := c.Request.URL.Path
+		
+		// Check and return original path
+		originalPath, err := m.functionRepo.CheckAndReturnOriginalPath(path, "test")
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError,
+				utils.NewResponse("Failed to process path", nil))
+			c.Abort()
+			return
+		}
+
+		userIDInterface, exists := c.Get("userID")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.NewResponse("User ID not found", nil))
+			return
+		}
+		fmt.Println("userIDInterface ", userIDInterface)
+
+		userIDStr, ok := userIDInterface.(string)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.NewResponse("Invalid User ID format", nil))
+			return
+		}
+		userID, err := strconv.Atoi(userIDStr) // Chuyển string sang int
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.NewResponse("Invalid User ID format", nil))
+			return
+		}
+
+		// Truyền userID vào hàm
+		isAuth, err := m.functionRepo.IsAuthentication(userID, originalPath)
+		if err != nil || !isAuth {
+			c.AbortWithStatusJSON(http.StatusInternalServerError,
+				utils.NewResponse("ERROR_FORBIDDEN_USER_ACCESS", nil))
+			c.Abort()
+			return
+		}
+
+		c.Next()
 	}
 }

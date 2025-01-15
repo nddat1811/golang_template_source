@@ -43,13 +43,7 @@ my_project/
 │   └──  domain/               # Entities và các giá trị liên quan đến domain
 │       ├── user.go
 │       └── auth.go
-├── pkg/                      # Thư viện dùng chung giữa các phần (VD: logging, utils)
-│   ├── logger/
-│   │   └── logger.go
-│   ├── utils/
-│   │   └── utils.go
-│   └── response/
-│       └── response.go
+├── utils/                      # Thư viện dùng chung giữa các phần (VD: logging, utils)
 ├── docs/                     # API documentation (VD: Swagger files)
 │   └── swagger.json
 ├── .github/
@@ -74,9 +68,8 @@ my_project/
 - `repository`: interacts with the database or external data sources.
 - `usecase`: business logic implementation.
 - `domain`: defines core entities.
-- `pkg`: reusable shared packages.
 - `logger`: custom logging utilities.
-- `utils`: general utility functions.
+- `utils`: reusable shared packages.
 - `response`: standardized client responses.
 - `docs`: API documentation (e.g., Swagger).
 - `.github`: CI/CD workflows for automated processes.
@@ -86,6 +79,11 @@ go.mod: manages Go module dependencies.
 Dockerfile: builds the Docker image.
 .env: stores environment variables.
 Makefile: scripts for build/test/deploy tasks.
+
+sql-migrate up -config=config/database/dbconfig.yml -env=development
+sql-migrate down -config=config/database/dbconfig.yml -env=development
+
+sql-migrate new -config=config/database/dbconfig.yml -env=development "migration_name"
 
 go mod init <module_name>
 go get -u github.com/gin-gonic/gin
@@ -98,9 +96,31 @@ go install github.com/swaggo/swag/cmd/swag@latest
 go get github.com/gin-contrib/cors
 go install github.com/rubenv/sql-migrate/...@latest
 go get -u github.com/golang-jwt/jwt/v5
+
+excel
 go get github.com/xuri/excelize/v2
 go get github.com/stretchr/testify/mock
+
+hot reload
 go install github.com/mitranim/gow@latest
+go install github.com/air-verse/air@latest
+
+
 go get github.com/DATA-DOG/go-sqlmock
 go install go.uber.org/mock/mockgen@latest
 go install github.com/golang/mock/mockgen@v1.6.0
+
+schedule
+go get github.com/go-co-op/gocron/v2
+
+go get
+Tải module và chỉnh sửa go.mod, go.sum.
+go install
+Tạo file thực thi và lưu vào $GOPATH/bin hoặc $GOBIN.
+
+http://localhost:4000/swagger/index.html
+
+go test ./... -cover
+go test ./...
+go test ./... -coverprofile=coverage.out
+go tool cover -html=coverage

@@ -31,15 +31,25 @@ func (s *testUserRepositorySuite) TestGetAll() {
 	}
 	defer db.Close()
 	s.Run("Success", func() {
-		rows := sqlmock.NewRows([]string{"id", "name", "email", "phone", "password", "created_at", "updated_at"}).
+		rows := sqlmock.NewRows([]string{"id", "full_name", "email", "phone", "hash_password", "created_at", "updated_at"}).
 			AddRow(1, "John Doe", "john@example.com", "123-456-7890", "hashed_password1", time.Now(), time.Now())
-		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).WillReturnRows(rows)
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "SYS_USER"`)).WillReturnRows(rows)
 
 		userRepository := repository.NewUserRepository(gdb)
 		users, err := userRepository.GetAll()
 		assert.NoError(s.T(), err)
 		assert.Len(s.T(), users, 1)
 		assert.Equal(s.T(), "John Doe", users[0].Name)
+		assert.NoError(s.T(), mock.ExpectationsWereMet())
+	})
+
+	s.Run("Failure", func() {
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "SYS_USER"`)).WillReturnError(fmt.Errorf("some error"))
+
+		userRepository := repository.NewUserRepository(gdb)
+		users, err := userRepository.GetAll()
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), users)
 		assert.NoError(s.T(), mock.ExpectationsWereMet())
 	})
 }
@@ -53,9 +63,9 @@ func (s *testUserRepositorySuite) TestGetByID() {
 	userRepository := repository.NewUserRepository(gdb)
 
 	s.Run("Success", func() {
-		rows := sqlmock.NewRows([]string{"id", "name", "email", "phone", "password", "created_at", "updated_at"}).
+		rows := sqlmock.NewRows([]string{"id", "full_name", "email", "phone", "hash_password", "created_at", "updated_at"}).
 			AddRow(1, "John Doe", "john@example.com", "123-456-7890", "hashed_password1", time.Now(), time.Now())
-		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" LIMIT $2`)).
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "SYS_USER" WHERE "SYS_USER"."id" = $1 ORDER BY "SYS_USER"."id" LIMIT $2`)).
 			WithArgs(1, 1).
 			WillReturnRows(rows)
 		// userRepository := repository.NewUserRepository(gdb)
@@ -67,7 +77,7 @@ func (s *testUserRepositorySuite) TestGetByID() {
 	})
 
 	s.Run("Failure", func() {
-		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" LIMIT $2`)).
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "SYS_USER" WHERE "SYS_USER"."id" = $1 ORDER BY "SYS_USER"."id" LIMIT $2`)).
 			WithArgs(999, 1).
 			WillReturnError(fmt.Errorf("some error"))
 
@@ -127,7 +137,7 @@ func (s *testUserRepositorySuite) TestCreate() {
 				mocks: func() {
 					mock.ExpectBegin()
 					mock.ExpectQuery(regexp.QuoteMeta(
-						`INSERT INTO "users" ("name","email","phone","password","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
+						`INSERT INTO "SYS_USER" ("full_name","email","phone","hash_password","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
 						WithArgs(
 							"t1", "t1@gmail.com", "1", "1",
 							sqlmock.AnyArg(), sqlmock.AnyArg(),
@@ -152,7 +162,7 @@ func (s *testUserRepositorySuite) TestCreate() {
 				mocks: func() {
 					mock.ExpectBegin()
 					mock.ExpectQuery(regexp.QuoteMeta(
-						`INSERT INTO "users" ("name","email","phone","password","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
+						`INSERT INTO "SYS_USER" ("full_name","email","phone","hash_password","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
 						WithArgs(
 							"t1", "t1@gmail.com", "1", "1",
 							sqlmock.AnyArg(), sqlmock.AnyArg(),

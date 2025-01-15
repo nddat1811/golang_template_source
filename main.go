@@ -7,6 +7,7 @@ import (
 	"golang_template_source/config"
 	"golang_template_source/docs"
 	"golang_template_source/routers"
+	"golang_template_source/utils"
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/files"
 )
@@ -27,7 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
-
+	utils.StartScheduler()
 	conn := config.InitPostgreSQL()
 	defer config.CloseConnectDB(conn)
 

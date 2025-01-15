@@ -22,34 +22,34 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) GetAll() ([]*domain.SysUser, error) {
+func (u *userRepository) GetAll() ([]*domain.SysUser, error) {
 	var users []*domain.SysUser
-	if err := r.db.Find(&users).Error; err != nil {
+	if err := u.db.Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
 }
 
-func (r *userRepository) GetByID(id int) (*domain.SysUser, error) {
+func (u *userRepository) GetByID(id int) (*domain.SysUser, error) {
 	var user domain.SysUser
-	if err := r.db.First(&user, id).Error; err != nil {
+	if err := u.db.First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
 
-func (r *userRepository) FindByEmail(email string) (*domain.SysUser, error) {
+func (u *userRepository) FindByEmail(email string) (*domain.SysUser, error) {
 	var user domain.SysUser
-	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
+	if err := u.db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (r *userRepository) Create(user *domain.SysUser) (id int, err error) {
+func (u *userRepository) Create(user *domain.SysUser) (id int, err error) {
 
-	err = r.db.Create(&user).Error
+	err = u.db.Create(&user).Error
 
 	if err != nil {
 		return 0, err

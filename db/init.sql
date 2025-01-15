@@ -133,8 +133,8 @@ VALUES
 -- Thêm người dùng vào bảng SYS_USER
 INSERT INTO "SYS_USER" (full_name, email, phone, hash_password)
 VALUES 
-('Admin', 'admin@gmail.com', '0123456789', 'hashed_password_for_admin'),
-('User', 'user@gmail.com', '0987654321', 'hashed_password_for_user');
+('Admin', 'admin@gmail.com', '0123456789', '$2a$10$j3u/NoMXCHGaAQX92unfHeymF4N0foLDeBqLP7N8wjY9S/gixulG6'),
+('User', 'user@gmail.com', '0987654321', '$2a$10$j3u/NoMXCHGaAQX92unfHeymF4N0foLDeBqLP7N8wjY9S/gixulG6');
 
 -- Phân quyền cho người dùng
 -- Admin được gán quyền Admin
@@ -148,3 +148,22 @@ INSERT INTO "SYS_USER_ROLE" (user_id, role_id, created_by)
 VALUES 
 ((SELECT id FROM "SYS_USER" WHERE email = 'user@gmail.com'), 
  (SELECT id FROM "SYS_ROLE" WHERE name = 'User'), 1);
+
+
+INSERT INTO "SYS_ROLE_FUNCTION" (function_id, role_id, created_by)
+VALUES 
+((SELECT id FROM "SYS_FUNCTION" WHERE name = 'Get All Users'), 
+(SELECT id FROM "SYS_ROLE" WHERE name = 'Admin'), 1);
+
+-- User được gán quyền User
+INSERT INTO "SYS_ROLE_FUNCTION" (function_id, role_id, created_by)
+VALUES 
+((SELECT id FROM "SYS_FUNCTION" WHERE name = 'Get All Users'), 
+ (SELECT id FROM "SYS_ROLE" WHERE name = 'User'), 1);
+
+
+INSERT INTO "SYS_ROLE_FUNCTION" (function_id, role_id, created_by)
+VALUES 
+((SELECT id FROM "SYS_FUNCTION" WHERE name = 'Get User Detail'), 
+(SELECT id FROM "SYS_ROLE" WHERE name = 'Admin'), 1);
+

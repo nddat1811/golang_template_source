@@ -14,6 +14,7 @@ type UserUseCase interface {
 	GetAllUsers() ([]*domain.SysUser, error)
 	GetUserByID(id int) (*domain.SysUser, error)
 	ExportUsersToExcel() (*bytes.Buffer, error)
+	ExportUsersToTemplate() (*bytes.Buffer, error)
 }
 
 type userUseCase struct {
@@ -55,13 +56,12 @@ func (u *userUseCase) ExportUsersToExcel() (*bytes.Buffer, error) {
 	}
 
 	f := excelize.NewFile()
-	sheet := "Users"
-	f.NewSheet(sheet)
+	sheet := f.GetSheetName(0)
 
 	// Write header
 	headers := []string{"ID", "Name", "Email", "CreatedAt", "UpdatedAt"}
 	for col, header := range headers {
-		cell := string('A'+col) + "1"
+  	cell := string(rune('A'+col)) + "1"
 		f.SetCellValue(sheet, cell, header)
 	}
 
@@ -74,6 +74,39 @@ func (u *userUseCase) ExportUsersToExcel() (*bytes.Buffer, error) {
 		f.SetCellValue(sheet, "E"+strconv.Itoa(row+2), user.UpdatedAt)
 	}
 
+	buffer := new(bytes.Buffer)
+	if err := f.Write(buffer); err != nil {
+		return nil, err
+	}
+
+	return buffer, nil
+}
+
+
+func (u *userUseCase) ExportUsersToTemplate() (*bytes.Buffer, error) {
+	// Open the template Excel file
+	f, err := excelize.OpenFile("templates/template_user.xlsx")
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	// Get all users
+	users, err := u.GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	sheet := f.GetSheetName(0)
+	rowIndex := 2 // Start writing from row 2, assuming row 1 is header
+
+	for i, user := range users {
+		f.SetCellValue(sheet, "A"+strconv.Itoa(rowIndex+i), i+1)       // STT
+		f.SetCellValue(sheet, "B"+strconv.Itoa(rowIndex+i), user.Name) // Name
+		f.SetCellValue(sheet, "C"+strconv.Itoa(rowIndex+i), user.Email) // Email
+	}
+
+	// Write to buffer
 	buffer := new(bytes.Buffer)
 	if err := f.Write(buffer); err != nil {
 		return nil, err

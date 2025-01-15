@@ -75,3 +75,24 @@ func (h *UserController) ExportUsersToExcel(c *gin.Context) {
 	c.Header("Content-Disposition", "attachment; filename=users.xlsx")
 	c.Data(http.StatusOK, "application/octet-stream", file.Bytes())
 }
+
+// @Summary Export all users to Excel from template
+// @Description Export all users to an Excel file and download from template
+// @Tags users
+// @Produce application/octet-stream
+// @Success 200 {file} file
+// @Router /users/export-template [get]
+func (h *UserController) ExportUsersToTemplate(c *gin.Context) {
+	file, err := h.userUseCase.ExportUsersToTemplate()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.NewResponse("Failed to export users", nil))
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment; filename=export.xlsx")
+	c.Data(http.StatusOK, "application/octet-stream", file.Bytes())
+}
+
+func HelloWorld(c *gin.Context) {
+	c.JSON(http.StatusOK, utils.NewResponse("ok", nil))
+}

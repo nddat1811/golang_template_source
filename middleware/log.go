@@ -13,6 +13,7 @@ import (
 
 	"golang_template_source/config"
 	"golang_template_source/domain"
+	"golang_template_source/repository"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,6 +56,9 @@ func LogMiddleware() gin.HandlerFunc {
 		// Capture response details
 		statusCode := c.Writer.Status()
 		responseBody := bw.body.String()
+		if strings.Contains(c.Writer.Header().Get("Content-Type"), "application/octet-stream") {
+			responseBody = "file"
+		}
 		duration := time.Since(startTime).Seconds()
 		realIP := GetRealIP(c)
 
@@ -71,9 +75,14 @@ func LogMiddleware() gin.HandlerFunc {
 			RequestQuery:     string(requestQuery),
 			Duration:         duration,
 		}
-		fmt.Println( "Request logged by middleware")
-		if err := config.DB.Create(&log).Error; err != nil {
-			c.Error(err) // Log the error if saving the log fails
+
+		con:= config.InitPostgreSQL()
+		defer config.CloseConnectDB(con)
+		sysLogRepo := repository.NewSysLogRepository(con)
+
+		err := sysLogRepo.InsertLog(&log)
+		if err != nil {
+			c.Error(err)
 		}
 
 		if err := writeLogToCSV(log); err != nil {

@@ -6,12 +6,11 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"golang_template_source/usecase"
-	"golang_template_source/repository"
 	"golang_template_source/controller"
 	"golang_template_source/middleware"
-
+	"golang_template_source/repository"
+	"golang_template_source/usecase"
+	"gorm.io/gorm"
 )
 
 func SetupRouter(conn *gorm.DB) *gin.Engine {
@@ -24,7 +23,7 @@ func SetupRouter(conn *gorm.DB) *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	
+
 	router.Use(middleware.LogMiddleware())
 
 	userRepo := repository.NewUserRepository(conn)
@@ -36,26 +35,26 @@ func SetupRouter(conn *gorm.DB) *gin.Engine {
 
 	authRoutes := router.Group("/auth")
 	{
-		authRoutes.POST("/login", authController.Login)    
-		authRoutes.POST("/register", authController.Register) 
-		authRoutes.POST("/refresh", authController.RefreshToken)    
+		authRoutes.POST("/login", authController.Login)
+		authRoutes.POST("/register", authController.Register)
+		authRoutes.POST("/refresh", authController.RefreshToken)
 	}
 
-	
 	userUseCase := usecase.NewUserUseCase(userRepo)
 
 	user := controller.NewUserController(userUseCase)
 
-	authMiddleware := middleware.NewAuthMiddleware(authUseCase)
+	authMiddleware := middleware.NewAuthMiddleware(authUseCase, conn)
 
 	protected := router.Group("/")
-	protected.Use(authMiddleware.TokenAuthMiddleware()) // Middleware only applies to this group
+	protected.Use(authMiddleware.TokenAuthMiddleware())
+	protected.Use(authMiddleware.Middleware())
 	{
 		protected.GET("/users/:id", user.GetUserByID)
+		protected.GET("/users", user.GetAllUsers)
 	}
-	router.GET("/users", user.GetAllUsers)
 	router.GET("/users/export", user.ExportUsersToExcel)
+	router.GET("/users/export-template", user.ExportUsersToTemplate)
 
-	
 	return router
 }
