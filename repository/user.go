@@ -16,6 +16,7 @@ type UserRepository interface {
 	GetByID(id int) (*domain.SysUser, error)
 	FindByEmail(email string) (*domain.SysUser, error)
 	Create(user *domain.SysUser) (id int, err error)
+	UpdateUser(user *domain.SysUser) (*domain.SysUser, error)
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
@@ -56,4 +57,11 @@ func (u *userRepository) Create(user *domain.SysUser) (id int, err error) {
 	}
 
 	return user.ID, nil
+}
+
+func (u *userRepository) UpdateUser(user *domain.SysUser) (*domain.SysUser, error) {
+	if err := u.db.Save(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }

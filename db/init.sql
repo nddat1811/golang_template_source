@@ -3,6 +3,7 @@ CREATE TABLE "SYS_FUNCTION" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     path VARCHAR(255) NOT NULL,
+    regex VARCHAR(255),
     description TEXT,
     parent_id INT,
     type VARCHAR(50),
@@ -11,8 +12,7 @@ CREATE TABLE "SYS_FUNCTION" (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by INT NOT NULL,
-    updated_by INT,
-    regex VARCHAR(255)
+    updated_by INT
 );
 
 -- Bảng SYS_LOG
@@ -58,7 +58,7 @@ CREATE TABLE "SYS_USER" (
     id SERIAL PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(15) UNIQUE,
+    phone VARCHAR(15),
     hash_password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -75,54 +75,11 @@ CREATE TABLE "SYS_USER_ROLE" (
     FOREIGN KEY (role_id) REFERENCES "SYS_ROLE"(id) ON DELETE CASCADE
 );
 
--- Trigger để cập nhật updated_at cho SYS_FUNCTION
-CREATE OR REPLACE FUNCTION update_sys_function_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_sys_function
-BEFORE UPDATE ON "SYS_FUNCTION"
-FOR EACH ROW
-EXECUTE FUNCTION update_sys_function_timestamp();
-
--- Trigger để cập nhật updated_at cho SYS_ROLE
-CREATE OR REPLACE FUNCTION update_sys_role_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_sys_role
-BEFORE UPDATE ON "SYS_ROLE"
-FOR EACH ROW
-EXECUTE FUNCTION update_sys_role_timestamp();
-
--- Trigger để cập nhật updated_at cho SYS_USER
-CREATE OR REPLACE FUNCTION update_sys_user_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_sys_user
-BEFORE UPDATE ON "SYS_USER"
-FOR EACH ROW
-EXECUTE FUNCTION update_sys_user_timestamp();
-
-
 -- Thêm các function vào bảng SYS_FUNCTION
-INSERT INTO "SYS_FUNCTION" (name, path, description, type, status, created_by)
+INSERT INTO "SYS_FUNCTION" (name, path, description, type, status, created_by, regex)
 VALUES 
-('Get All Users', '/users', 'Lấy danh sách tất cả người dùng', 'API', 'ACTIVE', 1),
-('Get User Detail', '/users/:id', 'Lấy thông tin chi tiết của người dùng', 'API', 'ACTIVE', 1);
+('Get All Users', '/users', 'Lấy danh sách tất cả người dùng', 'API', 'ACTIVE', 1, NULL),
+('Get User Detail', '/users/:id', 'Lấy thông tin chi tiết của người dùng', 'API', 'ACTIVE', 1, '^/users/[a-zA-Z0-9]+$');
 
 -- Thêm các role vào bảng SYS_ROLE
 INSERT INTO "SYS_ROLE" (name, description, status, created_by)

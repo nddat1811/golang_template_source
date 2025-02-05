@@ -23,7 +23,7 @@ func NewUserController(uc usecase.UserUseCase) *UserController{
 // @Tags users
 // @Accept json
 // @Produce json
-// @Success 200 {array} domain.User
+// @Success 200 {array} domain.SysUser
 // @Router /users [get]
 func (h *UserController) GetAllUsers(c *gin.Context) {
 	users, err := h.userUseCase.GetAllUsers()
@@ -41,7 +41,7 @@ func (h *UserController) GetAllUsers(c *gin.Context) {
 // @Produce json
 // @Security Authorization
 // @Param id path int true "User ID"
-// @Success 200 {object} domain.User
+// @Success 200 {object} domain.SysUser
 // @Router /users/{id} [get]
 func (h *UserController) GetUserByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -93,6 +93,36 @@ func (h *UserController) ExportUsersToTemplate(c *gin.Context) {
 	c.Data(http.StatusOK, "application/octet-stream", file.Bytes())
 }
 
-func HelloWorld(c *gin.Context) {
-	c.JSON(http.StatusOK, utils.NewResponse("ok", nil))
+// @Summary Edit full name of user
+// @Description Update only the full_name of a user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param request body domain.UpdateFullNameRequest true "Update Full Name Request"
+// @Success 200 {object} domain.SysUser
+// @Router /users/update/{id} [put]
+func (h *UserController) EditFullName(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.NewResponse("Invalid ID", nil))
+		return
+	}
+
+	var requestBody struct {
+		FullName string `json:"full_name"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, utils.NewResponse("Invalid request body", nil))
+		return
+	}
+
+	updatedUser, err := h.userUseCase.EditFullName(id, requestBody.FullName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.NewResponse("Failed to update full name", nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.NewResponse("Full name updated successfully", updatedUser))
 }

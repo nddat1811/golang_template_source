@@ -110,6 +110,7 @@ go get github.com/DATA-DOG/go-sqlmock
 go install go.uber.org/mock/mockgen@latest
 go install github.com/golang/mock/mockgen@v1.6.0
 
+go get github.com/minio/minio-go/v7
 schedule
 go get github.com/go-co-op/gocron/v2
 
@@ -125,4 +126,5 @@ go test ./...
 go test ./... -coverprofile=coverage.out
 go tool cover -html=coverage
 
-go get github.com/minio/minio-go/v7
+
+go generate ./...

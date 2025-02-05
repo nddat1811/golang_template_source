@@ -56,6 +56,7 @@ func SetupRouter(conn *gorm.DB) *gin.Engine {
 		protected.GET("/users/:id", user.GetUserByID)
 		protected.GET("/users", user.GetAllUsers)
 	}
+	router.PUT("/users/update/:id", user.EditFullName)
 	router.GET("/users/export", user.ExportUsersToExcel)
 	router.GET("/users/export-template", user.ExportUsersToTemplate)
 

@@ -1,14 +1,4 @@
 definitions:
-  controller.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
   controller.RefreshToken:
     properties:
       refresh_token:
@@ -27,7 +17,17 @@ definitions:
     - email
     - password
     type: object
-  domain.User:
+  domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.SysUser:
     properties:
       createdAt:
         type: string
@@ -43,6 +43,13 @@ definitions:
         type: string
       updatedAt:
         type: string
+    type: object
+  domain.UpdateFullNameRequest:
+    properties:
+      full_name:
+        type: string
+    required:
+    - full_name
     type: object
 info:
   contact:
@@ -64,7 +71,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/controller.LoginRequest'
+          $ref: '#/definitions/domain.LoginRequest'
       produces:
       - application/json
       responses:
@@ -123,7 +130,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.User'
+              $ref: '#/definitions/domain.SysUser'
             type: array
       summary: Get all users
       tags:
@@ -145,7 +152,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.User'
+            $ref: '#/definitions/domain.SysUser'
       security:
       - Authorization: []
       summary: Get user by ID
@@ -162,6 +169,46 @@ paths:
           schema:
             type: file
       summary: Export all users to Excel
+      tags:
+      - users
+  /users/export-template:
+    get:
+      description: Export all users to an Excel file and download from template
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Export all users to Excel from template
+      tags:
+      - users
+  /users/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update only the full_name of a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Full Name Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateFullNameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.SysUser'
+      summary: Edit full name of user
       tags:
       - users
 securityDefinitions:

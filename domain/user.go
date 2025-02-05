@@ -8,8 +8,8 @@ type SysUser struct {
 	Email     string    `gorm:"column:email"`
 	Phone     string    `gorm:"column:phone"`
 	Password  string    `gorm:"column:hash_password"`
-	CreatedAt time.Time `gorm:"column:created_at"`
-	UpdatedAt time.Time `gorm:"column:updated_at"`
+	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt time.Time `gorm:"column:updated_at;autoUpdateTime"`
 }
 
 
@@ -21,7 +21,7 @@ type SysUserRole struct {
 	ID        int       `gorm:"primaryKey;autoIncrement"`
 	UserID    int       `gorm:"column:user_id"`
 	RoleID    int       `gorm:"column:role_id"`
-	CreatedAt time.Time `gorm:"column:created_at"`
+	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 	CreatedBy int       `gorm:"column:created_by"`
 }
 
@@ -33,4 +33,13 @@ func (sysUserRole *SysUserRole) TableName() string {
 type Token struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
+}
+
+type UpdateFullNameRequest  struct {
+	Fullname    string `json:"full_name" binding:"required"`
+}
+
+type LoginRequest  struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }

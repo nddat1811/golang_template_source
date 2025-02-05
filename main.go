@@ -1,17 +1,18 @@
 package main
 
 import (
-	"log"
-	"os"
-	"github.com/joho/godotenv"
 	"golang_template_source/config"
 	"golang_template_source/docs"
 	"golang_template_source/routers"
 	"golang_template_source/utils"
-	"github.com/swaggo/gin-swagger"
-	"github.com/swaggo/files"
-)
+	"log"
+	"os"
+	"time"
 
+	"github.com/joho/godotenv"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+)
 
 // @contact.name   API Support
 // @contact.url    http://www.swagger.io/support
@@ -23,6 +24,14 @@ import (
 // @securityDefinitions.apikey Authorization
 // @in header
 // @name Authorization
+
+type OK struct {
+	ID        uint      `gorm:"primaryKey"`
+	Name      string
+	CreatedAt time.Time `gorm:"autoCreateTime"`  // Gán giá trị mặc định khi tạo mới
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`  // Tự động cập nhật khi update
+}
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -32,6 +41,22 @@ func main() {
 	conn := config.InitPostgreSQL()
 	defer config.CloseConnectDB(conn)
 
+	conn.AutoMigrate(&OK{})
+
+	// // Tạo bản ghi mới
+	// newRecord := OK{Name: "Test 3Name3"}
+	// conn.Create(&newRecord)
+	// fmt.Println("Dữ liệu ban đầu:", newRecord)
+
+	// // Chờ 5 giây để kiểm tra cập nhật UpdatedAt
+	// time.Sleep(100 * time.Second)
+
+	// // Cập nhật Name
+	// conn.Model(&newRecord).Update("Name", "Updated Name2")
+
+	// var updatedRecord OK
+	// conn.First(&updatedRecord, newRecord.ID)
+	// fmt.Println("Dữ liệu sau khi cập nhật:", updatedRecord)
 	//programmatically set swagger info
 	docs .SwaggerInfo.Title = "Swagger Golang"
 	docs.SwaggerInfo.Description = "This is a golang"

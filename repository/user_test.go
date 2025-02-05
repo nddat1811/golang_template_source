@@ -191,6 +191,43 @@ func (s *testUserRepositorySuite) TestCreate() {
 	}
 }
 
+
+func (s *testUserRepositorySuite) TestFindByEmail() {
+	// Initialize mock database
+	db, gdb, mock, err := NewConnManager()
+	if err != nil {
+		s.T().Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	userRepository := repository.NewUserRepository(gdb)
+
+	s.Run("Success", func() {
+		rows := sqlmock.NewRows([]string{"id", "full_name", "email", "phone", "hash_password", "created_at", "updated_at"}).
+			AddRow(1, "John Doe", "john@example.com", "123-456-7890", "hashed_password1", time.Now(), time.Now())
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "SYS_USER" WHERE email = $1 ORDER BY "SYS_USER"."id" LIMIT $2`)).
+			WithArgs("john@example.com", 1).
+			WillReturnRows(rows)
+
+		user, err := userRepository.FindByEmail("john@example.com")
+		assert.NoError(s.T(), err)
+		assert.NotNil(s.T(), user)
+		assert.Equal(s.T(), "John Doe", user.Name)
+		assert.NoError(s.T(), mock.ExpectationsWereMet())
+	})
+
+	s.Run("Failure - User Not Found", func() {
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "SYS_USER" WHERE email = $1 ORDER BY "SYS_USER"."id" LIMIT $2`)).
+			WithArgs("notfound@example.com", 1).
+			WillReturnError(fmt.Errorf("record not found"))
+
+		user, err := userRepository.FindByEmail("notfound@example.com")
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), user)
+		assert.NoError(s.T(), mock.ExpectationsWereMet())
+	})
+}
+
 // // Tạo instance của repository
 // userRepository := repository.NewUserRepository(gdb)
 

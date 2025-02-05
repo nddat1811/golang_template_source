@@ -18,21 +18,17 @@ func NewAuthController(authUseCase usecase.AuthUseCase) *AuthController {
 	return &AuthController{authUseCase: authUseCase}
 }
 
-type LoginRequest  struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
 
 // User Login  godoc
 // @Summary User Login
 // @Description User Login
 // @Accept  json
 // @Produce  json
-// @Param request body LoginRequest true "Login Request"
+// @Param request body domain.LoginRequest true "Login Request"
 // @Success 200 {object} string
 // @Router /auth/login [post]
 func (c *AuthController) Login(ctx *gin.Context) {
-	var request LoginRequest
+	var request domain.LoginRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.NewResponse("Bad request", nil))

@@ -15,6 +15,7 @@ type UserUseCase interface {
 	GetUserByID(id int) (*domain.SysUser, error)
 	ExportUsersToExcel() (*bytes.Buffer, error)
 	ExportUsersToTemplate() (*bytes.Buffer, error)
+	EditFullName(id int, fullName string) (*domain.SysUser, error)
 }
 
 type userUseCase struct {
@@ -113,4 +114,20 @@ func (u *userUseCase) ExportUsersToTemplate() (*bytes.Buffer, error) {
 	}
 
 	return buffer, nil
+}
+
+func (u *userUseCase) EditFullName(id int, fullName string) (*domain.SysUser, error) {
+	user, err := u.userRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Name = fullName
+
+	updatedUser, err := u.userRepo.UpdateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedUser, nil
 }
