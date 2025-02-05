@@ -63,5 +63,6 @@ func SetupRouter(conn *gorm.DB) *gin.Engine {
 	socketController := controller.NewWebSocketController(manager)
 	router.GET("/socket/ws/:room", socketController.HandleWebSocket)
 
+	router.POST("/upload", utils.UploadImageToMinio)
 	return router
 }

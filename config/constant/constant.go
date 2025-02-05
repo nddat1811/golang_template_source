@@ -6,4 +6,5 @@ var (
 
 const (
 	AuthorHeader = "Authorization"
+	PATH_PREFIX = "test"
 )

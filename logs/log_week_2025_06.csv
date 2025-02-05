@@ -1,0 +1,2 @@
+action_datetime,path_name,method,ip,status_response,response,description,request_body,request_query,duration
+2025-02-05 10:29:29,/users/2,GET,::1,200,"{""message"":""ok"",""data"":{""ID"":2,""Name"":""User"",""Email"":""user@gmail.com"",""Phone"":""0987654321"",""Password"":""$2a$10$j3u/NoMXCHGaAQX92unfHeymF4N0foLDeBqLP7N8wjY9S/gixulG6"",""CreatedAt"":""2025-01-08T08:31:47.751324Z"",""UpdatedAt"":""2025-01-08T15:50:53.729619Z""}}",Request logged by middleware,,{},0.007

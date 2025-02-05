@@ -124,3 +124,5 @@ go test ./... -cover
 go test ./...
 go test ./... -coverprofile=coverage.out
 go tool cover -html=coverage
+
+go get github.com/minio/minio-go/v7

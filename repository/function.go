@@ -28,6 +28,7 @@ func (f *sysFunctionRepository) CheckAndReturnOriginalPath(urlPath string, pathP
 	if urlPath2 == "" {
 		return "x", nil
 	}
+	
 	var functions []domain.SysFunction
 	result := f.db.Where("regex IS NOT NULL").Find(&functions)
 	if result.Error != nil {

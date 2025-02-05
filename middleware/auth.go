@@ -61,7 +61,7 @@ func (m *AuthMiddleware) TokenAuthMiddleware() gin.HandlerFunc {
 				utils.NewResponse("token không hợp lệ", nil))
 			return
 		}
-		fmt.Println("token ", token)
+
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
 			ctx.JSON(http.StatusUnauthorized, utils.NewResponse("token không hợp lệ", nil))
@@ -85,7 +85,7 @@ func (m *AuthMiddleware) Middleware() gin.HandlerFunc {
 		path := c.Request.URL.Path
 		
 		// Check and return original path
-		originalPath, err := m.functionRepo.CheckAndReturnOriginalPath(path, "test")
+		originalPath, err := m.functionRepo.CheckAndReturnOriginalPath(path, constant.PATH_PREFIX)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError,
 				utils.NewResponse("Failed to process path", nil))
