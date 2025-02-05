@@ -4,14 +4,17 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"golang_template_source/controller"
 	"golang_template_source/middleware"
 	"golang_template_source/repository"
 	"golang_template_source/usecase"
+	"golang_template_source/utils"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
+
 
 func SetupRouter(conn *gorm.DB) *gin.Engine {
 	router := gin.Default()
@@ -43,7 +46,7 @@ func SetupRouter(conn *gorm.DB) *gin.Engine {
 	userUseCase := usecase.NewUserUseCase(userRepo)
 
 	user := controller.NewUserController(userUseCase)
-
+	
 	authMiddleware := middleware.NewAuthMiddleware(authUseCase, conn)
 
 	protected := router.Group("/")
@@ -55,6 +58,10 @@ func SetupRouter(conn *gorm.DB) *gin.Engine {
 	}
 	router.GET("/users/export", user.ExportUsersToExcel)
 	router.GET("/users/export-template", user.ExportUsersToTemplate)
+
+	manager := utils.NewConnectionManager()
+	socketController := controller.NewWebSocketController(manager)
+	router.GET("/socket/ws/:room", socketController.HandleWebSocket)
 
 	return router
 }
