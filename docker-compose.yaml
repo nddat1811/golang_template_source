@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: test
       POSTGRES_ROOT_HOST: '%'
     volumes:
+    # /db/init.sql → File SQL trên máy host (local).
+    # /docker-entrypoint-initdb.d/init.sql → Thư mục đặc biệt trong container PostgreSQL Khi container PostgreSQL khởi động, nó sẽ chạy tất cả các file .sql trong thư mục này để khởi tạo database.
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 5432:5432
