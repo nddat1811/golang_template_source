@@ -17,6 +17,10 @@ type PagingResponse struct {
 	Data    PageInfo `json:"data"`
 }
 
-func NewResponse(Message string, Data interface{}) *Response {
-	return &Response{Message: Message, Data: Data}
+func NewResponse(Message string, Data interface{}) interface{} {
+	if Data == nil {
+		return &Response{Message: Message, Data: nil}
+	} else {
+		return Data
+	}
 }

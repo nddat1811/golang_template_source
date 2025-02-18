@@ -1,0 +1,9 @@
+action_datetime,path_name,method,ip,status_response,response,description,request_body,request_query,duration
+2025-02-16 14:53:30,/auth/register,POST,::1,500,"{""message"":""Bad request"",""data"":null}",Request logged by middleware,"{""email"":""yongpalkim1811@gmail.com"",""password"":""******""}",{},0.057
+2025-02-16 14:56:04,/auth/register,POST,::1,500,"{""message"":""Bad request"",""data"":null}",Request logged by middleware,"{""email"":""yongpalkim1811@gmail.com"",""password"":""******""}",{},0.138
+2025-02-16 14:57:32,/auth/register,POST,::1,500,"{""message"":""Bad request"",""data"":null}",Request logged by middleware,"{""email"":""yongpalkim1811@gmail.com"",""password"":""******""}",{},0.056
+2025-02-16 14:57:59,/auth/register,POST,::1,500,"{""message"":""Bad request"",""data"":null}",Request logged by middleware,"{""email"":""nddat1811@gmail.com"",""password"":""******""}",{},0.109
+2025-02-16 14:59:53,/auth/register,POST,::1,500,"{""message"":""Bad request"",""data"":null}",Request logged by middleware,"{""email"":""nddat1811@gmail.com"",""password"":""******""}",{},0.107
+2025-02-16 15:01:33,/auth/register,POST,::1,500,"{""message"":""Bad request"",""data"":null}",Request logged by middleware,"{""email"":""nddat1811@gmail.com"",""password"":""******""}",{},0.104
+2025-02-16 15:05:35,/auth/register,POST,::1,500,"{""message"":""Bad request"",""data"":null}",Request logged by middleware,"{""email"":""nddat1811@gmail.com"",""password"":""******""}",{},0.105
+2025-02-16 15:16:02,/auth/register,POST,::1,201,"{""message"":""ok"",""data"":null}",Request logged by middleware,"{""email"":""nddat1811@gmail.com"",""password"":""******""}",{},0.751

@@ -28,10 +28,14 @@ import (
 type OK struct {
 	ID        uint      `gorm:"primaryKey"`
 	Name      string
+	Ten	string
 	CreatedAt time.Time `gorm:"autoCreateTime"`  // Gán giá trị mặc định khi tạo mới
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`  // Tự động cập nhật khi update
 }
 
+func (OK) TableName() string {
+	return "OK2"
+}
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -41,9 +45,9 @@ func main() {
 	conn := config.InitPostgreSQL()
 	defer config.CloseConnectDB(conn)
 
-	conn.AutoMigrate(&OK{})
+	// conn.AutoMigrate(&OK{})
 
-	// // Tạo bản ghi mới
+	// // // Tạo bản ghi mới
 	// newRecord := OK{Name: "Test 3Name3"}
 	// conn.Create(&newRecord)
 	// fmt.Println("Dữ liệu ban đầu:", newRecord)

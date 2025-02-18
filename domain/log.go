@@ -16,6 +16,6 @@ type SysLog struct {
 	Duration       float64
 }
 
-func (sysLog *SysLog) TableName() string {
+func (SysLog) TableName() string {
 	return "SYS_LOG"
 }

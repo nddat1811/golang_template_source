@@ -1,22 +1,28 @@
 package usecase
 
 import (
+	"bytes"
+	"crypto/tls"
 	"errors"
+	"fmt"
 	"golang_template_source/domain"
+	"golang_template_source/domain/dto"
 	"golang_template_source/repository"
+	"html/template"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/gomail.v2"
 )
 
 type AuthUseCase interface {
-	Login(email, password string) (domain.Token, error)
+	Login(email, password string) (dto.TokenResponse, error)
 	Register(user *domain.SysUser) error
 	ValidateToken(token string) (*jwt.Token, error)
-	RefreshToken(refreshTokenString string) (domain.Token, error)
+	RefreshToken(refreshTokenString string) (dto.TokenResponse, error)
 }
 
 type authUseCase struct {
@@ -33,7 +39,7 @@ func NewAuthUseCase(userRepo repository.UserRepository, functionRepo repository.
 	}
 }
 
-func (a *authUseCase) issueTokens(userID string) (domain.Token, error) {
+func (a *authUseCase) issueTokens(userID string) (dto.TokenResponse, error) {
 	// Phát hành Access Token (hết hạn trong 1 ngày)
 	accessTokenExpiration := time.Now().Add(24 * time.Hour)
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -43,7 +49,7 @@ func (a *authUseCase) issueTokens(userID string) (domain.Token, error) {
 
 	accessTokenString, err := accessToken.SignedString([]byte(jwtKey))
 	if err != nil {
-		return domain.Token{}, err
+		return dto.TokenResponse{}, err
 	}
 
 	// Phát hành Refresh Token (hết hạn trong 7 ngày)
@@ -55,27 +61,67 @@ func (a *authUseCase) issueTokens(userID string) (domain.Token, error) {
 
 	refreshTokenString, err := refreshToken.SignedString([]byte(jwtKey))
 	if err != nil {
-		return domain.Token{}, err
+		return dto.TokenResponse{}, err
 	}
 
-	return domain.Token{
+	return dto.TokenResponse{
 		AccessToken:      accessTokenString,
 		RefreshToken:     refreshTokenString,
 	}, nil
 }
 
-func (a *authUseCase) Login(email, password string) (domain.Token, error) {
+func (a *authUseCase) Login(email, password string) (dto.TokenResponse, error) {
 	user, err := a.userRepo.FindByEmail(email)
 	if err != nil {
-		return domain.Token{}, errors.New("invalid credentials")
+		return dto.TokenResponse{}, errors.New("invalid credentials")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return domain.Token{}, errors.New("invalid credentials222")
+		return dto.TokenResponse{}, errors.New("invalid credentials222")
 	}
 
 	return a.issueTokens(strconv.Itoa(user.ID))
 }
+
+func SendActivationEmail(smtpServer string, smtpPort int, emailSender, emailPassword, receiversEmail, token string) error {
+	dialer := gomail.NewDialer(smtpServer, smtpPort, emailSender, emailPassword)
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true} // Bỏ qua xác thực TLS nếu cần
+
+	activationLink := fmt.Sprintf("http://localhost:8080/activate?token=%s", token)
+
+	tmpl, err := template.New("activationEmail").Parse(`
+		<html>
+			<body>
+				<p>Xin chào,</p>
+				<p>Vui lòng nhấp vào liên kết dưới đây để kích hoạt tài khoản của bạn:</p>
+				<a href="{{.Link}}">Kích hoạt tài khoản</a>
+				<p>Liên kết này sẽ hết hạn sau 1 giờ.</p>
+			</body>
+		</html>`)
+	if err != nil {
+		return err
+	}
+
+	var body bytes.Buffer
+	err = tmpl.Execute(&body, struct{ Link string }{Link: activationLink})
+	if err != nil {
+		return err
+	}
+
+	msg := gomail.NewMessage()
+	msg.SetHeader("From", emailSender)
+	msg.SetHeader("To", receiversEmail)
+	msg.SetHeader("Subject", "Kích hoạt tài khoản của bạn")
+	msg.SetBody("text/html", body.String())
+
+	// Gửi email
+	if err := dialer.DialAndSend(msg); err != nil {
+		return fmt.Errorf("failed to send email: %v", err)
+	}
+
+	return nil
+}
+
 
 func (a *authUseCase) Register(user *domain.SysUser) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -83,11 +129,28 @@ func (a *authUseCase) Register(user *domain.SysUser) error {
 		return err
 	}
 	user.Password = string(hashedPassword)
-	// return a.userRepo.Create(user)
-	_, errCreate := a.userRepo.Create(user)
-	if errCreate!= nil {
-        return errCreate
-    }
+	user.Status = "0"
+	// createdUser, errCreate := a.userRepo.Create(user)
+	// if errCreate!= nil {
+    //     return errCreate
+    // }
+
+	// Tạo token kích hoạt
+	token, err := a.issueTokens(strconv.Itoa(3))
+	if err != nil {
+		return err
+	}
+	smtpServer := "10.3.12.25"
+	smtpPort := 25
+	emailSender := "product.mbf2@mobifone.vn"
+	emailPassword := "PSP@2023"
+	receiversEmail := "yongpalkim1811@gmail.com"
+
+	// Gửi email kích hoạt
+	err = SendActivationEmail(smtpServer, smtpPort, emailSender, emailPassword, receiversEmail, token.AccessToken)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -98,25 +161,25 @@ func (a *authUseCase) ValidateToken(tokenString string) (*jwt.Token, error) {
 }
 
 
-func (a *authUseCase) RefreshToken(refreshTokenString string) (domain.Token, error) {
+func (a *authUseCase) RefreshToken(refreshTokenString string) (dto.TokenResponse, error) {
 	// Parse và xác thực Refresh Token
 	token, err := jwt.Parse(refreshTokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtKey), nil
 	})
 
 	if err != nil || !token.Valid {
-		return domain.Token{}, errors.New("invalid refresh token")
+		return dto.TokenResponse{}, errors.New("invalid refresh token")
 	}
 
 	// Lấy thông tin userID từ claims
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return domain.Token{}, errors.New("invalid refresh token claims")
+		return dto.TokenResponse{}, errors.New("invalid refresh token claims")
 	}
 
 	userID, ok := claims["userID"].(string)
 	if !ok {
-		return domain.Token{}, errors.New("invalid refresh token payload")
+		return dto.TokenResponse{}, errors.New("invalid refresh token payload")
 	}
 
 	// Phát hành cặp token mới cho user
