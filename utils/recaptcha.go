@@ -9,7 +9,7 @@ import (
 )
 
 
-const recaptchaSecretKey = "6Lfkn9sqAAAAAI3uaOzbkuE9R-vIJUMcbpEHBE4L"
+const recaptchaSecretKey = ""
 
 type RecaptchaResponse struct {
 	Success     bool      `json:"success"`
