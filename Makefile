@@ -8,14 +8,6 @@ format:
 swag:
 	swag init
 
-# chạy test
-test:
-	- go test ./...
-
-test_show_covers:
-	- go test ./controller/... ./repository/... ./usecase/... -coverprofile=coverage.out
-	- go tool cover -html coverage.out
-
 atlas:
 	- atlas schema inspect --url "postgres://test:test@localhost:5432/test?sslmode=disable" 
 #tạo file sql

@@ -3,7 +3,7 @@ package main
 import (
 	"golang_template_source/config"
 	"golang_template_source/docs"
-	"golang_template_source/routers"
+	"golang_template_source/internal/routers"
 	"golang_template_source/utils"
 	"log"
 	"os"

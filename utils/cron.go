@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"golang_template_source/config"
-	"golang_template_source/domain"
-	"golang_template_source/repository"
+	"golang_template_source/internal/domain"
 
 	"github.com/go-co-op/gocron/v2"
 )
@@ -49,7 +48,7 @@ func syncUsersDaily() {
 	con := config.InitPostgreSQL()
 	defer config.CloseConnectDB(con)
 
-	repo := repository.NewSysLogRepository(con)
+	// repo := repository.NewSysLogRepository(con)
 
 	log := domain.SysLog{
 		ActionDatetime:   time.Now(),
@@ -63,6 +62,6 @@ func syncUsersDaily() {
 		RequestQuery:     "string(requestQuery)",
 		Duration:         0.12,
 	}
-
-	repo.InsertLog(&log)
+	fmt.Println(log)
+	// repo.InsertLog(&log)
 }
