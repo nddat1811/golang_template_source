@@ -13,10 +13,10 @@ import (
 
 
 var (
-	BUCKET_NAME        = "test"
-	MINIO_ENDPOINT     = "10.39.125.26:8998"
-	MINIO_USERNAME     = "psp_admin"
-	MINIO_PASSWORD     = "psp_admin"
+	BUCKET_NAME        = ""
+	MINIO_ENDPOINT     = ""
+	MINIO_USERNAME     = ""
+	MINIO_PASSWORD     = ""
 	MINIO_PUBLIC_DOMAIN = "https://hcm.mobifone.vn/minio"
 )
 
