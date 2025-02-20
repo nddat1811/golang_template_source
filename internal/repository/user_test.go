@@ -4,7 +4,7 @@ import (
 	// "database/sql"
 	"database/sql/driver"
 	"fmt"
-	"golang_template_source/internal/domain/entity"
+	"golang_template_source/internal/domain"
 	"golang_template_source/internal/repository"
 	"regexp"
 	"testing"
@@ -111,7 +111,7 @@ func (s *testUserRepositorySuite) TestCreate() {
 
 	type testCaseIn struct {
 		mocks        func()
-		newUserInput entity.SysUser
+		newUserInput domain.SysUser
 	}
 
 	type testCaseOut struct {
@@ -127,7 +127,7 @@ func (s *testUserRepositorySuite) TestCreate() {
 		{
 			name: "create new user success",
 			in: testCaseIn{
-				newUserInput: entity.SysUser{
+				newUserInput: domain.SysUser{
 					Name:     "t1",
 					Email:    "t1@gmail.com",
 					Phone:    "1",
@@ -152,7 +152,7 @@ func (s *testUserRepositorySuite) TestCreate() {
 		{
 			name: "create new user failed",
 			in: testCaseIn{
-				newUserInput: entity.SysUser{
+				newUserInput: domain.SysUser{
 					Name:     "t1",
 					Email:    "t1@gmail.com",
 					Phone:    "1",
@@ -246,7 +246,7 @@ func (s *testUserRepositorySuite) TestFindByEmail() {
 
 // 	// Tạo dữ liệu test
 // 	now := time.Now().Truncate(time.Millisecond)
-// 	user := entity.User{
+// 	user := domain.User{
 // 		Name:      "t1",
 // 		Email:     "t1@example.com",
 // 		Phone:     "1",

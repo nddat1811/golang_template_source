@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"golang_template_source/internal/domain"
-	"golang_template_source/internal/domain/convert"
 	"golang_template_source/internal/repository"
 )
 
@@ -37,27 +36,21 @@ func NewUserUseCase(repo repository.UserRepository) UserUseCase {
 // }
 
 func (u *userUseCase) GetUserByID(id int) (*domain.SysUser, error) {
-	userEntity, err := u.userRepo.GetByID(id)
+	user, err := u.userRepo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	// Chuyển đổi từ entity sang domain
-	userDomain := convert.ConvertEntityToDomain(userEntity)
-
-	return userDomain, nil
+	return user, nil
 }
 
 func (u *userUseCase) FindByEmail(email string) (*domain.SysUser, error) {
-	userEntity, err := u.userRepo.FindByEmail(email)
+	user, err := u.userRepo.FindByEmail(email)
 	if err != nil {
 		return nil, err
 	}
 
-	// Chuyển đổi từ entity sang domain
-	userDomain := convert.ConvertEntityToDomain(userEntity)
-
-	return userDomain, nil
+	return user, nil
 }
 
 // func (u *userUseCase) Create(user *domain.SysUser) error {

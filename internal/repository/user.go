@@ -2,6 +2,8 @@
 package repository
 
 import (
+	"golang_template_source/internal/domain"
+	"golang_template_source/internal/domain/convert"
 	"golang_template_source/internal/domain/entity"
 
 	"gorm.io/gorm"
@@ -12,43 +14,50 @@ type userRepository struct {
 }
 
 type UserRepository interface {
-	GetAll() ([]*entity.SysUser, error)
-	GetByID(id int) (*entity.SysUser, error)
-	FindByEmail(email string) (*entity.SysUser, error)
-	Create(user *entity.SysUser) (id int, err error)
-	UpdateUser(user *entity.SysUser) (*entity.SysUser, error)
+	GetAll() ([]*domain.SysUser, error)
+	GetByID(id int) (*domain.SysUser, error)
+	FindByEmail(email string) (*domain.SysUser, error)
+	Create(user *domain.SysUser) (id int, err error)
+	UpdateUser(user *domain.SysUser) (*domain.SysUser, error)
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (u *userRepository) GetAll() ([]*entity.SysUser, error) {
-	var users []*entity.SysUser
+func (u *userRepository) GetAll() ([]*domain.SysUser, error) {
+	var users []*domain.SysUser
 	if err := u.db.Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
 }
 
-func (u *userRepository) GetByID(id int) (*entity.SysUser, error) {
+func (u *userRepository) GetByID(id int) (*domain.SysUser, error) {
 	var user entity.SysUser
 	if err := u.db.First(&user, id).Error; err != nil {
 		return nil, err
 	}
-	return &user, nil
+
+	// Chuyển đổi từ entity sang domain
+	userDomain := convert.ConvertEntityToDomain(&user)
+	return userDomain, nil
+	// return &user, nil
 }
 
 
-func (u *userRepository) FindByEmail(email string) (*entity.SysUser, error) {
+func (u *userRepository) FindByEmail(email string) (*domain.SysUser, error) {
 	var user entity.SysUser
 	if err := u.db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
-	return &user, nil
+
+	// Chuyển đổi từ entity sang domain
+	userDomain := convert.ConvertEntityToDomain(&user)
+	return userDomain, nil
 }
 
-func (u *userRepository) Create(user *entity.SysUser) (id int, err error) {
+func (u *userRepository) Create(user *domain.SysUser) (id int, err error) {
 
 	err = u.db.Create(&user).Error
 
@@ -59,7 +68,7 @@ func (u *userRepository) Create(user *entity.SysUser) (id int, err error) {
 	return user.ID, nil
 }
 
-func (u *userRepository) UpdateUser(user *entity.SysUser) (*entity.SysUser, error) {
+func (u *userRepository) UpdateUser(user *domain.SysUser) (*domain.SysUser, error) {
 	if err := u.db.Save(user).Error; err != nil {
 		return nil, err
 	}
